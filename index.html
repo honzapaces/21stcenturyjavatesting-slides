@@ -4,11 +4,11 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+		<title>Modern Testing in Java</title>
 
 		<link rel="stylesheet" href="css/reset.css">
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+		<link rel="stylesheet" href="css/theme/league.css">
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/monokai.css">
@@ -25,8 +25,198 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				<section><h1>Testing in Java in the 21st century</h1></section>
+				<section><h2>Introduction (About me)</h2>
+
+					<div style="text-align: left; float: left;">
+						<p><img data-src="introduction.png"></p>
+					</div>
+
+					<div style="text-align: left; float: right;">
+						<p>Honza Pačes</p>
+						<p>8+ year experience</p>
+						<p>Mostly Java Web Apps</p>
+						<p>Spend 2 year at Amazon</p>
+					</div>
+				</section>
+				<section><h2>What this is about</h2>
+					<h3>Functional testing</h3>
+					<ul>
+						<li>Types of functional testing</li>
+						<li>Tools</li>
+						<li>Tips from practice</li>
+					</ul>
+				</section>
+				<section><h2>Testing pyramid</h2>
+						<p>
+							<img data-src="testing_pyramid.png" style="margin: 0; padding: 0; background:none; border:none; box-shadow:none;">
+						</p>
+				</section>
+				<section><h2>Testing styles</h2></section>
+				<section>
+					<h3>Given - When - Then</h3>
+					<pre><code data-trim data-noescape>
+						//given
+						CalendarEvent calendarEvent = new CalendarEvent();
+						when(eventRepository.save(any())).thenReturn(calendarEvent);
+						//when
+						CalendarEvent actualEvent = eventController.createEvent(calendarEvent);
+						//then
+						assertThat(actualEvent).isEqualTo(calendarEvent);
+						verify(eventRepository).save(calendarEvent);
+					</code></pre>
+				</section>
+				<section>
+					<h2>Arrange - Act - Assert</h2>
+					<pre><code data-trim data-noescape>
+						//arrange
+						CalendarEvent calendarEvent = new CalendarEvent();
+						when(eventRepository.save(any())).thenReturn(calendarEvent);
+						//act
+						CalendarEvent actualEvent = eventController.createEvent(calendarEvent);
+						//assert
+						assertThat(actualEvent).isEqualTo(calendarEvent);
+						verify(eventRepository).save(calendarEvent);
+					</code></pre>
+				</section>
+				<section>
+					<h2>Assertion and Matching</h2>
+					<p>http://hamcrest.org/JavaHamcrest</p>
+					<pre><code data-trim data-noescape>
+						assertThat("chocolate chips", theBiscuit.getChocolateChipCount(), equalTo(10));
+
+						assertThat("hazelnuts", theBiscuit.getHazelnutCount(), equalTo(3));
+					</code></pre>
+					<p>https://assertj.github.io/doc/</p>
+					<pre><code data-trim data-noescape>
+						assertThat(fellowshipOfTheRing).hasSize(9)
+                               .contains(frodo, sam)
+                               .doesNotContain(sauron);
+					</code></pre>
+				</section>
+				<section>
+					<h2>Proper tools & frameworks</h2>
+					<p>Tools designed with testing in mind</p>
+					<pre><code data-trim data-noescape>
+						@SpringBootTest
+						@AutoConfigureMockMvc
+					</code></pre>
+					<pre><code data-trim data-noescape>
+						ActorTestKit testKit = ActorTestKit.create();
+					</code></pre>
+				</section>
+				<section>
+					<h2><strong>T</strong>est Driven Development</h2>
+					<div class="fragment">
+						<p>Kotlin</p>
+						<pre><code data-trim data-noescape>
+							TODO("This is a function that throws "An operation is not implemented" excpetion ")
+						</code></pre>
+					</div>
+					<div class="fragment">
+						<p>Scala</p>
+						<pre><code data-trim data-noescape>
+							???
+						</code></pre>
+					</div>
+					<div class="fragment">
+						<p>Java</p>
+						<pre><code data-trim data-noescape>
+							//not language feature
+							thrown new NotImplementedException();
+						</code></pre>
+					</div>
+				</section>
+				<section>
+					<section>
+						<h2>Unit testing</h2>
+						<div style="text-align: center">
+							<p>Junit5</p>
+							<p>VS</p>
+							<p>TestNG</p>
+						</div>
+					</section>
+					<section>
+						<h2>Junit5</h2>
+						<pre class="fragment"><code data-trim data-noescape>
+							@DisplayName("Really nice test name")
+						</code></pre>
+						<pre class="fragment"><code data-trim data-noescape>
+							@ParameterizedTest
+						 	@ValueSource(ints = { 1, 2, 3 })
+							void testWithValueSource(int argument) {
+					</code></pre>
+						<pre class="fragment"><code data-trim data-noescape>
+							@TestMethodOrder(MethodOrderer.Random.class)
+						</code></pre>
+					</section>
+				</section>
+				<section><h2>Mocking</h2>
+					<p>https://site.mockito.org/</p>
+					<p>Stubbing</p>
+					<pre><code data-trim data-noescape>
+						when(eventRepository.save(any())).thenReturn(calendarEvent);
+					</code></pre>
+					<p>Verification</p>
+						<pre><code data-trim data-noescape>
+							verify(eventRepository).save(calendarEvent);
+						</code></pre>
+				</section>
+
+				<section>
+					<section><h2>Integration Testing</h2></section>
+					<section><p>wiremock.org</p>
+						<pre><code data-trim data-noescape>
+						wireMockRule.stubFor(get(urlEqualTo("/stock/SWI/chart/date/20190816?chartByDay=true&token=stockToken"))
+							.willReturn(aResponse()
+							.withBody(FileLoader.read("classpath:stockPriceResponse.json"))
+							.withHeader(CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+							.withStatus(200)));
+							</code></pre>
+					</section>
+				</section>
+				<section><h2>BDD</h2>
+					<p>https://cucumber.io/</p>
+					<pre><code data-trim data-noescape>
+						Feature: Get weather for a day
+						Days in the past, current day and upcoming 7 days should provide weather info
+
+						Scenario: Get weather for today
+						Given a specific day
+						When I call day overview for that day
+						Then I get weather for that day
+					</code></pre>
+				</section>
+				<section><h2>API Tests</h2>
+					<p>http://rest-assured.io/</p>
+					<pre><code data-trim data-noescape>
+						given().
+						body(new CalendarEvent(LocalDate.now(), "header", "text")).
+						contentType("application/json").
+						when().
+						post(String.format("http://localhost:%s/event", port)).
+						then().
+						statusCode(200).
+						body("eventHeader", equalTo("header"), "eventText", equalTo("text"));
+					</code></pre>
+				</section>
+				<section><h2>End2End and beyond</h2>
+				</section>
+				<section>
+					<h2>Being successful with Testing</h2>
+					<ul>
+						<li class="fragment">Make them part of your process</li>
+						<li class="fragment">Treat them as a production code</li>
+						<li class="fragment">Write tests that can be read easily</li>
+						<li class="fragment">Select proper tools</li>
+						<li class="fragment">Select proper metrics</li>
+					</ul>
+				</section>
+				<section>
+					<p>https://github.com/honzapaces/21stcenturyjavatesting</p>
+				</section>
+				<section><h2>Questions & Discussion</h2></section>
+				<section><h2>Thank you</h2></section>
 			</div>
 		</div>
 
@@ -44,6 +234,9 @@
 					{ src: 'plugin/highlight/highlight.js', async: true }
 				]
 			});
+
+			Reveal.configure({ slideNumber: true });
+			Reveal.configure({ slideNumber: 'c/t' });
 		</script>
 	</body>
 </html>
